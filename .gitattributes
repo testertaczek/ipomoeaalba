@@ -1,0 +1,21 @@
+# C sources and headers
+*.c     linguist-language=C
+*.h     linguist-language=C
+
+# C++ sources (headers must use .hpp / .hh / .hxx)
+*.cc    linguist-language=C++
+*.cpp   linguist-language=C++
+*.cxx   linguist-language=C++
+*.hpp   linguist-language=C++
+*.hh    linguist-language=C++
+*.hxx   linguist-language=C++
+
+# Normalize line endings
+*       text=auto
+
+# Ensure source files use LF
+*.c     text eol=lf
+*.h     text eol=lf
+*.cpp   text eol=lf
+*.hpp   text eol=lf
+*.slang text eol=lf
