@@ -4,8 +4,7 @@
  * 
  *  TODO docs
  */
-#ifdef IA_INSTRUMENT_RENDER_GRAPH
-#include <ia/base/types.h>
+#include <ia/foundation.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,4 +15,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-#endif /* IA_INSTRUMENT_RENDER_GRAPH */

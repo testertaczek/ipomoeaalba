@@ -13,6 +13,10 @@ project(ipomoea_alba
     LANGUAGES C CXX
 )
 
+if (MSVC)
+    message(FATAL_ERROR "MSVC support is very much questionable and work in progress. Use GCC or Clang.")
+endif()
+
 # Don't use absolute paths to the build tree in RPATH, this makes the build tree relocatable
 set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 
@@ -24,12 +28,12 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # C settings
 set(CMAKE_C_STANDARD 23)
-set(CMAKE_C_STANDARD_REQUIRED OFF)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
 # C++ settings
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CXX_STANDARD_REQUIRED OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
 
 # Engine headers
@@ -95,7 +99,10 @@ endif()
 
 # Engine foundation library (core, compute, datastructures)
 add_library(ia_foundation OBJECT
-    source/engine/work.c
+    source/engine/datastructures.c
+    source/engine/foundation.c
+    source/engine/system_linux.c # TODO
+    source/engine/system_unix.c # TODO
     ${IA_ASM_SOURCE}
 )
 add_library(ia::foundation ALIAS ia_foundation)

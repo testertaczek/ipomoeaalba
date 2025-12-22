@@ -1,8 +1,17 @@
 #pragma once
 /** @file ia/base/endian.h
- *  @brief CPU endianness.
- * 
- *  TODO docs
+ *  @brief Endianness detection, byte swapping, and explicit bitwise values.
+ *
+ *  The intent is to make byte order handling explicit at API boundaries (serialization,
+ *  file formats, network protocols) while remaining zero-cost on native-endian platforms.
+ *  No endian conversions are implicit. Operations are defined for 16-, 32- and 64-bit integers.
+ *
+ *  Possible values of `IA_BYTEORDER` are 
+ *      - `_IA_BYTEORDER_LE` (little-endian)
+ *      - `_IA_BYTEORDER_BE` (big-endian)
+ *
+ *  One of IA_LITTLE_ENDIAN or IA_BIG_ENDIAN will be defined accordingly.
+ *  Detection is performed using platform headers, compiler predefined macros, or architecture fallbacks.
  */
 #include <ia/base/types.h>
 
@@ -46,6 +55,11 @@
     #endif
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+/** Byte-swap a 16-bit unsigned integer. */
 IA_FORCE_INLINE u16 
 ia_bswap16(u16 x) 
 {
@@ -62,6 +76,7 @@ ia_bswap16(u16 x)
 #endif
 }
 
+/** Byte-swap a 32-bit unsigned integer. */
 IA_FORCE_INLINE u32
 ia_bswap32(u32 x) 
 {
@@ -83,6 +98,7 @@ ia_bswap32(u32 x)
 #endif
 }
 
+/** Byte-swap a 64-bit unsigned integer. */
 IA_FORCE_INLINE u64
 ia_bswap64(u64 x) 
 {
@@ -236,3 +252,7 @@ ia_be32_to_cpu(be32 val)
 IA_FORCE_INLINE u16 
 ia_be16_to_cpu(be16 val)
 { return IA_BE16_TO_CPU(val); }
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */

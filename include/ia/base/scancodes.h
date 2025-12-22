@@ -9,57 +9,57 @@
 #include <ia/base/types.h>
 
 typedef enum ia_scancode : i16 {
-    IA_SCANCODE_UNKNOWN = 0,
+    ia_scancode_unknown = 0,
 
     /** These values are from usage page 0x07 (USB keyboard page) */
-    IA_SCANCODE_A = 4,
-    IA_SCANCODE_B = 5,
-    IA_SCANCODE_C = 6,
-    IA_SCANCODE_D = 7,
-    IA_SCANCODE_E = 8,
-    IA_SCANCODE_F = 9,
-    IA_SCANCODE_G = 10,
-    IA_SCANCODE_H = 11,
-    IA_SCANCODE_I = 12,
-    IA_SCANCODE_J = 13,
-    IA_SCANCODE_K = 14,
-    IA_SCANCODE_L = 15,
-    IA_SCANCODE_M = 16,
-    IA_SCANCODE_N = 17,
-    IA_SCANCODE_O = 18,
-    IA_SCANCODE_P = 19,
-    IA_SCANCODE_Q = 20,
-    IA_SCANCODE_R = 21,
-    IA_SCANCODE_S = 22,
-    IA_SCANCODE_T = 23,
-    IA_SCANCODE_U = 24,
-    IA_SCANCODE_V = 25,
-    IA_SCANCODE_W = 26,
-    IA_SCANCODE_X = 27,
-    IA_SCANCODE_Y = 28,
-    IA_SCANCODE_Z = 29,
+    ia_scancode_a = 4,
+    ia_scancode_b = 5,
+    ia_scancode_c = 6,
+    ia_scancode_d = 7,
+    ia_scancode_e = 8,
+    ia_scancode_f = 9,
+    ia_scancode_g = 10,
+    ia_scancode_h = 11,
+    ia_scancode_i = 12,
+    ia_scancode_j = 13,
+    ia_scancode_k = 14,
+    ia_scancode_l = 15,
+    ia_scancode_m = 16,
+    ia_scancode_n = 17,
+    ia_scancode_o = 18,
+    ia_scancode_p = 19,
+    ia_scancode_q = 20,
+    ia_scancode_r = 21,
+    ia_scancode_s = 22,
+    ia_scancode_t = 23,
+    ia_scancode_u = 24,
+    ia_scancode_v = 25,
+    ia_scancode_w = 26,
+    ia_scancode_x = 27,
+    ia_scancode_y = 28,
+    ia_scancode_z = 29,
 
-    IA_SCANCODE_1 = 30,
-    IA_SCANCODE_2 = 31,
-    IA_SCANCODE_3 = 32,
-    IA_SCANCODE_4 = 33,
-    IA_SCANCODE_5 = 34,
-    IA_SCANCODE_6 = 35,
-    IA_SCANCODE_7 = 36,
-    IA_SCANCODE_8 = 37,
-    IA_SCANCODE_9 = 38,
-    IA_SCANCODE_0 = 39,
+    ia_scancode_1 = 30,
+    ia_scancode_2 = 31,
+    ia_scancode_3 = 32,
+    ia_scancode_4 = 33,
+    ia_scancode_5 = 34,
+    ia_scancode_6 = 35,
+    ia_scancode_7 = 36,
+    ia_scancode_8 = 37,
+    ia_scancode_9 = 38,
+    ia_scancode_0 = 39,
  
-    IA_SCANCODE_RETURN = 40,
-    IA_SCANCODE_ESCAPE = 41,
-    IA_SCANCODE_BACKSPACE = 42,
-    IA_SCANCODE_TAB = 43,
-    IA_SCANCODE_SPACE = 44,
+    ia_scancode_return = 40,
+    ia_scancode_escape = 41,
+    ia_scancode_backspace = 42,
+    ia_scancode_tab = 43,
+    ia_scancode_space = 44,
  
-    IA_SCANCODE_MINUS = 45,
-    IA_SCANCODE_EQUALS = 46,
-    IA_SCANCODE_LEFTBRACKET = 47,
-    IA_SCANCODE_RIGHTBRACKET = 48,
+    ia_scancode_minus = 45,
+    ia_scancode_equals = 46,
+    ia_scancode_leftbracket = 47,
+    ia_scancode_rightbracket = 48,
     /** Located at the lower left of the return key on ISO keyboards and 
      *  at the right end of the QWERTY row on ANSI keyboards. Produces 
      *  REVERSE SOLIDUS (backslash) and VERTICAL LINE in a US layout, 
@@ -68,15 +68,15 @@ typedef enum ia_scancode : i16 {
      *  SIGN in a Swiss German layout, NUMBER SIGN and APOSTROPHE in 
      *  a German layout, GRAVE ACCENT and POUND SIGN in a French Mac
      *  layout, and ASTERISK and MICRO SIGN in a French Windows layout. */
-    IA_SCANCODE_BACKSLASH = 49,
+    ia_scancode_backslash = 49,
     /** ISO USB keyboards actually use this code instead of 49 for the 
      *  same key, but all OSes I've seen treat the two codes identically. 
      *  So, as an implementor, unless your keyboard generates both of 
      *  those codes and your OS treats them differently, you should 
      *  generate lake_scancode_backlash instead of this code. */
-    IA_SCANCODE_NONUSHASH = 50,
-    IA_SCANCODE_SEMICOLON = 51,
-    IA_SCANCODE_APOSTROPHE = 52,
+    ia_scancode_nonushash = 50,
+    ia_scancode_semicolon = 51,
+    ia_scancode_apostrophe = 52,
     /** Located in the top left corner (on both ANSI and ISO keyboards). 
      *  Produces GRAVE ACCENT and TILDE in a US Windows layout and in US 
      *  and UK Mac layouts on ANSI keyboards, GRAVE ACCENT and NOT SIGN 
@@ -88,243 +88,243 @@ typedef enum ia_scancode : i16 {
      *  COMMERCIAL AT and NUMBER SIGN in a French Mac layout on ISO 
      *  keyboards, and LESS-THAN SIGN and GREATER-THAN SIGN in a Swiss 
      *  German, German, or French Mac layout on ANSI keyboards. */
-    IA_SCANCODE_GRAVE = 53,
-    IA_SCANCODE_COMMA = 54,
-    IA_SCANCODE_PERIOD = 55,
-    IA_SCANCODE_SLASH = 56,
-    IA_SCANCODE_CAPSLOCK = 57,
+    ia_scancode_grave = 53,
+    ia_scancode_comma = 54,
+    ia_scancode_period = 55,
+    ia_scancode_slash = 56,
+    ia_scancode_capslock = 57,
 
-    IA_SCANCODE_F1 = 58,
-    IA_SCANCODE_F2 = 59,
-    IA_SCANCODE_F3 = 60,
-    IA_SCANCODE_F4 = 61,
-    IA_SCANCODE_F5 = 62,
-    IA_SCANCODE_F6 = 63,
-    IA_SCANCODE_F7 = 64,
-    IA_SCANCODE_F8 = 65,
-    IA_SCANCODE_F9 = 66,
-    IA_SCANCODE_F10 = 67,
-    IA_SCANCODE_F11 = 68,
-    IA_SCANCODE_F12 = 69,
+    ia_scancode_f1 = 58,
+    ia_scancode_f2 = 59,
+    ia_scancode_f3 = 60,
+    ia_scancode_f4 = 61,
+    ia_scancode_f5 = 62,
+    ia_scancode_f6 = 63,
+    ia_scancode_f7 = 64,
+    ia_scancode_f8 = 65,
+    ia_scancode_f9 = 66,
+    ia_scancode_f10 = 67,
+    ia_scancode_f11 = 68,
+    ia_scancode_f12 = 69,
 
-    IA_SCANCODE_PRINTSCREEN = 70,
-    IA_SCANCODE_SCROLLLOCK = 71,
-    IA_SCANCODE_PAUSE = 72,
-    IA_SCANCODE_INSERT = 73, /**< insert on PC, help on some Mac keyboards (but does send code 73, not 117) */
-    IA_SCANCODE_HOME = 74,
-    IA_SCANCODE_PAGEUP = 75,
-    IA_SCANCODE_DELETE = 76,
-    IA_SCANCODE_END = 77,
-    IA_SCANCODE_PAGEDOWN = 78,
-    IA_SCANCODE_RIGHT = 79,
-    IA_SCANCODE_LEFT = 80,
-    IA_SCANCODE_DOWN = 81,
-    IA_SCANCODE_UP = 82,
+    ia_scancode_printscreen = 70,
+    ia_scancode_scrolllock = 71,
+    ia_scancode_pause = 72,
+    ia_scancode_insert = 73, /**< insert on PC, help on some Mac keyboards (but does send code 73, not 117) */
+    ia_scancode_home = 74,
+    ia_scancode_pageup = 75,
+    ia_scancode_delete = 76,
+    ia_scancode_end = 77,
+    ia_scancode_pagedown = 78,
+    ia_scancode_right = 79,
+    ia_scancode_left = 80,
+    ia_scancode_down = 81,
+    ia_scancode_up = 82,
 
-    IA_SCANCODE_NUMLOCKCLEAR = 83, /**< num lock on PC, clear on Mac keyboards */
-    IA_SCANCODE_KP_DIVIDE = 84,
-    IA_SCANCODE_KP_MULTIPLY = 85,
-    IA_SCANCODE_KP_MINUS = 86,
-    IA_SCANCODE_KP_PLUS = 87,
-    IA_SCANCODE_KP_ENTER = 88,
-    IA_SCANCODE_KP_1 = 89,
-    IA_SCANCODE_KP_2 = 90,
-    IA_SCANCODE_KP_3 = 91,
-    IA_SCANCODE_KP_4 = 92,
-    IA_SCANCODE_KP_5 = 93,
-    IA_SCANCODE_KP_6 = 94,
-    IA_SCANCODE_KP_7 = 95,
-    IA_SCANCODE_KP_8 = 96,
-    IA_SCANCODE_KP_9 = 97,
-    IA_SCANCODE_KP_0 = 98,
-    IA_SCANCODE_KP_PERIOD = 99,
+    ia_scancode_numlockclear = 83, /**< num lock on PC, clear on Mac keyboards */
+    ia_scancode_kp_divide = 84,
+    ia_scancode_kp_multiply = 85,
+    ia_scancode_kp_minus = 86,
+    ia_scancode_kp_plus = 87,
+    ia_scancode_kp_enter = 88,
+    ia_scancode_kp_1 = 89,
+    ia_scancode_kp_2 = 90,
+    ia_scancode_kp_3 = 91,
+    ia_scancode_kp_4 = 92,
+    ia_scancode_kp_5 = 93,
+    ia_scancode_kp_6 = 94,
+    ia_scancode_kp_7 = 95,
+    ia_scancode_kp_8 = 96,
+    ia_scancode_kp_9 = 97,
+    ia_scancode_kp_0 = 98,
+    ia_scancode_kp_period = 99,
 
     /** This is the additional key that ISO keyboards have over ANSI ones, 
      *  located between left shift and Y. Produces GRAVE ACCENT and TILDE 
      *  in a US or UK Mac layout, REVERSE SOLIDUS (backslash) and VERTICAL 
      *  LINE in a US or UK Windows layout, and LESS-THAN SIGN and GREATER-THAN 
      *  SIGN in a Swiss German, German, or French layout. */
-    IA_SCANCODE_NONUSBACKSLASH = 100,
-    IA_SCANCODE_APPLICATION = 101, /**< windows contextual menu, compose */
+    ia_scancode_nonusbackslash = 100,
+    ia_scancode_application = 101, /**< windows contextual menu, compose */
     /** The USB document says this is a status flag, not a physical key, 
      *  but some Mac keyboards do have a power key. */
-    IA_SCANCODE_POWER = 102,
-    IA_SCANCODE_KP_EQUALS = 103,
-    IA_SCANCODE_F13 = 104,
-    IA_SCANCODE_F14 = 105,
-    IA_SCANCODE_F15 = 106,
-    IA_SCANCODE_F16 = 107,
-    IA_SCANCODE_F17 = 108,
-    IA_SCANCODE_F18 = 109,
-    IA_SCANCODE_F19 = 110,
-    IA_SCANCODE_F20 = 111,
-    IA_SCANCODE_F21 = 112,
-    IA_SCANCODE_F22 = 113,
-    IA_SCANCODE_F23 = 114,
-    IA_SCANCODE_F24 = 115,
-    IA_SCANCODE_EXECUTE = 116,
-    IA_SCANCODE_HELP = 117,    /**< AL Integrated Help Center */
-    IA_SCANCODE_MENU = 118,    /**< Menu (show menu) */
-    IA_SCANCODE_SELECT = 119,
-    IA_SCANCODE_STOP = 120,    /**< AC Stop */
-    IA_SCANCODE_AGAIN = 121,   /**< AC Redo/Repeat */
-    IA_SCANCODE_UNDO = 122,    /**< AC Undo */
-    IA_SCANCODE_CUT = 123,     /**< AC Cut */
-    IA_SCANCODE_COPY = 124,    /**< AC Copy */
-    IA_SCANCODE_PASTE = 125,   /**< AC Paste */
-    IA_SCANCODE_FIND = 126,    /**< AC Find */
-    IA_SCANCODE_MUTE = 127,
-    IA_SCANCODE_VOLUMEUP = 128,
-    IA_SCANCODE_VOLUMEDOWN = 129,
-    IA_SCANCODE_LOCKINGCAPSLOCK = 130,
-    IA_SCANCODE_LOCKINGNUMLOCK = 131,
-    IA_SCANCODE_LOCKINGSCROLLLOCK = 132,
-    IA_SCANCODE_KP_COMMA = 133,
-    IA_SCANCODE_KP_EQUALSAS400 = 134,
+    ia_scancode_power = 102,
+    ia_scancode_kp_equals = 103,
+    ia_scancode_f13 = 104,
+    ia_scancode_f14 = 105,
+    ia_scancode_f15 = 106,
+    ia_scancode_f16 = 107,
+    ia_scancode_f17 = 108,
+    ia_scancode_f18 = 109,
+    ia_scancode_f19 = 110,
+    ia_scancode_f20 = 111,
+    ia_scancode_f21 = 112,
+    ia_scancode_f22 = 113,
+    ia_scancode_f23 = 114,
+    ia_scancode_f24 = 115,
+    ia_scancode_execute = 116,
+    ia_scancode_help = 117,    /**< AL Integrated Help Center */
+    ia_scancode_menu = 118,    /**< Menu (show menu) */
+    ia_scancode_select = 119,
+    ia_scancode_stop = 120,    /**< AC Stop */
+    ia_scancode_again = 121,   /**< AC Redo/Repeat */
+    ia_scancode_undo = 122,    /**< AC Undo */
+    ia_scancode_cut = 123,     /**< AC Cut */
+    ia_scancode_copy = 124,    /**< AC Copy */
+    ia_scancode_paste = 125,   /**< AC Paste */
+    ia_scancode_find = 126,    /**< AC Find */
+    ia_scancode_mute = 127,
+    ia_scancode_volumeup = 128,
+    ia_scancode_volumedown = 129,
+    ia_scancode_lockingcapslock = 130,
+    ia_scancode_lockingnumlock = 131,
+    ia_scancode_lockingscrolllock = 132,
+    ia_scancode_kp_comma = 133,
+    ia_scancode_kp_equalsas400 = 134,
 
-    IA_SCANCODE_INTERNATIONAL1 = 135, /**< used on Asian keyboards, see footnotes in USB doc */
-    IA_SCANCODE_INTERNATIONAL2 = 136,
-    IA_SCANCODE_INTERNATIONAL3 = 137, /**< Yen */
-    IA_SCANCODE_INTERNATIONAL4 = 138,
-    IA_SCANCODE_INTERNATIONAL5 = 139,
-    IA_SCANCODE_INTERNATIONAL6 = 140,
-    IA_SCANCODE_INTERNATIONAL7 = 141,
-    IA_SCANCODE_INTERNATIONAL8 = 142,
-    IA_SCANCODE_INTERNATIONAL9 = 143,
-    IA_SCANCODE_LANG1 = 144, /**< Hangul/English toggle */
-    IA_SCANCODE_LANG2 = 145, /**< Hanja conversion */
-    IA_SCANCODE_LANG3 = 146, /**< Katakana */
-    IA_SCANCODE_LANG4 = 147, /**< Hiragana */
-    IA_SCANCODE_LANG5 = 148, /**< Zenkaku/Hankaku */
-    IA_SCANCODE_LANG6 = 149, /**< reserved */
-    IA_SCANCODE_LANG7 = 150, /**< reserved */
-    IA_SCANCODE_LANG8 = 151, /**< reserved */
-    IA_SCANCODE_LANG9 = 152, /**< reserved */
+    ia_scancode_international1 = 135, /**< used on Asian keyboards, see footnotes in USB doc */
+    ia_scancode_international2 = 136,
+    ia_scancode_international3 = 137, /**< Yen */
+    ia_scancode_international4 = 138,
+    ia_scancode_international5 = 139,
+    ia_scancode_international6 = 140,
+    ia_scancode_international7 = 141,
+    ia_scancode_international8 = 142,
+    ia_scancode_international9 = 143,
+    ia_scancode_lang1 = 144, /**< Hangul/English toggle */
+    ia_scancode_lang2 = 145, /**< Hanja conversion */
+    ia_scancode_lang3 = 146, /**< Katakana */
+    ia_scancode_lang4 = 147, /**< Hiragana */
+    ia_scancode_lang5 = 148, /**< Zenkaku/Hankaku */
+    ia_scancode_lang6 = 149, /**< reserved */
+    ia_scancode_lang7 = 150, /**< reserved */
+    ia_scancode_lang8 = 151, /**< reserved */
+    ia_scancode_lang9 = 152, /**< reserved */
 
-    IA_SCANCODE_ALTERASE = 153,    /**< Erase-Eaze */
-    IA_SCANCODE_SYSREQ = 154,
-    IA_SCANCODE_CANCEL = 155,      /**< AC Cancel */
-    IA_SCANCODE_CLEAR = 156,
-    IA_SCANCODE_PRIOR = 157,
-    IA_SCANCODE_RETURN2 = 158,
-    IA_SCANCODE_SEPARATOR = 159,
-    IA_SCANCODE_OUT = 160,
-    IA_SCANCODE_OPER = 161,
-    IA_SCANCODE_CLEARAGAIN = 162,
-    IA_SCANCODE_CRSEL = 163,
-    IA_SCANCODE_EXSEL = 164,
+    ia_scancode_alterase = 153,    /**< Erase-Eaze */
+    ia_scancode_sysreq = 154,
+    ia_scancode_cancel = 155,      /**< AC Cancel */
+    ia_scancode_clear = 156,
+    ia_scancode_prior = 157,
+    ia_scancode_return2 = 158,
+    ia_scancode_separator = 159,
+    ia_scancode_out = 160,
+    ia_scancode_oper = 161,
+    ia_scancode_clearagain = 162,
+    ia_scancode_crsel = 163,
+    ia_scancode_exsel = 164,
 
-    IA_SCANCODE_KP_00 = 176,
-    IA_SCANCODE_KP_000 = 177,
-    IA_SCANCODE_THOUSANDSSEPARATOR = 178,
-    IA_SCANCODE_DECIMALSEPARATOR = 179,
-    IA_SCANCODE_CURRENCYUNIT = 180,
-    IA_SCANCODE_CURRENCYSUBUNIT = 181,
-    IA_SCANCODE_KP_LEFTPAREN = 182,
-    IA_SCANCODE_KP_RIGHTPAREN = 183,
-    IA_SCANCODE_KP_LEFTBRACE = 184,
-    IA_SCANCODE_KP_RIGHTBRACE = 185,
-    IA_SCANCODE_KP_TAB = 186,
-    IA_SCANCODE_KP_BACKSPACE = 187,
-    IA_SCANCODE_KP_A = 188,
-    IA_SCANCODE_KP_B = 189,
-    IA_SCANCODE_KP_C = 190,
-    IA_SCANCODE_KP_D = 191,
-    IA_SCANCODE_KP_E = 192,
-    IA_SCANCODE_KP_F = 193,
-    IA_SCANCODE_KP_XOR = 194,
-    IA_SCANCODE_KP_POWER = 195,
-    IA_SCANCODE_KP_PERCENT = 196,
-    IA_SCANCODE_KP_LESS = 197,
-    IA_SCANCODE_KP_GREATER = 198,
-    IA_SCANCODE_KP_AMPERSAND = 199,
-    IA_SCANCODE_KP_DBLAMPERSAND = 200,
-    IA_SCANCODE_KP_VERTICALBAR = 201,
-    IA_SCANCODE_KP_DBLVERTICALBAR = 202,
-    IA_SCANCODE_KP_COLON = 203,
-    IA_SCANCODE_KP_HASH = 204,
-    IA_SCANCODE_KP_SPACE = 205,
-    IA_SCANCODE_KP_AT = 206,
-    IA_SCANCODE_KP_EXCLAM = 207,
-    IA_SCANCODE_KP_MEMSTORE = 208,
-    IA_SCANCODE_KP_MEMRECALL = 209,
-    IA_SCANCODE_KP_MEMCLEAR = 210,
-    IA_SCANCODE_KP_MEMADD = 211,
-    IA_SCANCODE_KP_MEMSUBTRACT = 212,
-    IA_SCANCODE_KP_MEMMULTIPLY = 213,
-    IA_SCANCODE_KP_MEMDIVIDE = 214,
-    IA_SCANCODE_KP_PLUSMINUS = 215,
-    IA_SCANCODE_KP_CLEAR = 216,
-    IA_SCANCODE_KP_CLEARENTRY = 217,
-    IA_SCANCODE_KP_BINARY = 218,
-    IA_SCANCODE_KP_OCTAL = 219,
-    IA_SCANCODE_KP_DECIMAL = 220,
-    IA_SCANCODE_KP_HEXADECIMAL = 221,
+    ia_scancode_kp_00 = 176,
+    ia_scancode_kp_000 = 177,
+    ia_scancode_thousandsseparator = 178,
+    ia_scancode_decimalseparator = 179,
+    ia_scancode_currencyunit = 180,
+    ia_scancode_currencysubunit = 181,
+    ia_scancode_kp_leftparen = 182,
+    ia_scancode_kp_rightparen = 183,
+    ia_scancode_kp_leftbrace = 184,
+    ia_scancode_kp_rightbrace = 185,
+    ia_scancode_kp_tab = 186,
+    ia_scancode_kp_backspace = 187,
+    ia_scancode_kp_a = 188,
+    ia_scancode_kp_b = 189,
+    ia_scancode_kp_c = 190,
+    ia_scancode_kp_d = 191,
+    ia_scancode_kp_e = 192,
+    ia_scancode_kp_f = 193,
+    ia_scancode_kp_xor = 194,
+    ia_scancode_kp_power = 195,
+    ia_scancode_kp_percent = 196,
+    ia_scancode_kp_less = 197,
+    ia_scancode_kp_greater = 198,
+    ia_scancode_kp_ampersand = 199,
+    ia_scancode_kp_dblampersand = 200,
+    ia_scancode_kp_verticalbar = 201,
+    ia_scancode_kp_dblverticalbar = 202,
+    ia_scancode_kp_colon = 203,
+    ia_scancode_kp_hash = 204,
+    ia_scancode_kp_space = 205,
+    ia_scancode_kp_at = 206,
+    ia_scancode_kp_exclam = 207,
+    ia_scancode_kp_memstore = 208,
+    ia_scancode_kp_memrecall = 209,
+    ia_scancode_kp_memclear = 210,
+    ia_scancode_kp_memadd = 211,
+    ia_scancode_kp_memsubtract = 212,
+    ia_scancode_kp_memmultiply = 213,
+    ia_scancode_kp_memdivide = 214,
+    ia_scancode_kp_plusminus = 215,
+    ia_scancode_kp_clear = 216,
+    ia_scancode_kp_clearentry = 217,
+    ia_scancode_kp_binary = 218,
+    ia_scancode_kp_octal = 219,
+    ia_scancode_kp_decimal = 220,
+    ia_scancode_kp_hexadecimal = 221,
 
-    IA_SCANCODE_LCTRL = 224,
-    IA_SCANCODE_LSHIFT = 225,
-    IA_SCANCODE_LALT = 226, /**< alt, option */
-    IA_SCANCODE_LGUI = 227, /**< windows, command (apple), meta */
-    IA_SCANCODE_RCTRL = 228,
-    IA_SCANCODE_RSHIFT = 229,
-    IA_SCANCODE_RALT = 230, /**< alt gr, option */
-    IA_SCANCODE_RGUI = 231, /**< windows, command (apple), meta */
-    IA_SCANCODE_MODE = 257,
+    ia_scancode_lctrl = 224,
+    ia_scancode_lshift = 225,
+    ia_scancode_lalt = 226, /**< alt, option */
+    ia_scancode_lgui = 227, /**< windows, command (apple), meta */
+    ia_scancode_rctrl = 228,
+    ia_scancode_rshift = 229,
+    ia_scancode_ralt = 230, /**< alt gr, option */
+    ia_scancode_rgui = 231, /**< windows, command (apple), meta */
+    ia_scancode_mode = 257,
 
     /* These values are mapped from usage page 0x0C (USB consumer page). There are 
      * way more keys in the spec than we can represent in the current scancode range, 
      * so pick the ones that commonly come up in real world usage. */
 
-    IA_SCANCODE_SLEEP = 258,                /**< Sleep */
-    IA_SCANCODE_WAKE = 259,                 /**< Wake */
+    ia_scancode_sleep = 258,                /**< Sleep */
+    ia_scancode_wake = 259,                 /**< Wake */
 
-    IA_SCANCODE_CHANNEL_INCREMENT = 260,    /**< Channel Increment */
-    IA_SCANCODE_CHANNEL_DECREMENT = 261,    /**< Channel Decrement */
+    ia_scancode_channel_increment = 260,    /**< Channel Increment */
+    ia_scancode_channel_decrement = 261,    /**< Channel Decrement */
 
-    IA_SCANCODE_MEDIA_PLAY = 262,           /**< Play */
-    IA_SCANCODE_MEDIA_PAUSE = 263,          /**< Pause */
-    IA_SCANCODE_MEDIA_RECORD = 264,         /**< Record */
-    IA_SCANCODE_MEDIA_FAST_FORWARD = 265,   /**< Fast Forward */
-    IA_SCANCODE_MEDIA_REWIND = 266,         /**< Rewind */
-    IA_SCANCODE_MEDIA_NEXT_TRACK = 267,     /**< Next Track */
-    IA_SCANCODE_MEDIA_PREVIOUS_TRACK = 268, /**< Previous Track */
-    IA_SCANCODE_MEDIA_STOP = 269,           /**< Stop */
-    IA_SCANCODE_MEDIA_EJECT = 270,          /**< Eject */
-    IA_SCANCODE_MEDIA_PLAY_PAUSE = 271,     /**< Play / Pause */
-    IA_SCANCODE_MEDIA_SELECT = 272,         /* Media Select */
+    ia_scancode_media_play = 262,           /**< Play */
+    ia_scancode_media_pause = 263,          /**< Pause */
+    ia_scancode_media_record = 264,         /**< Record */
+    ia_scancode_media_fast_forward = 265,   /**< Fast Forward */
+    ia_scancode_media_rewind = 266,         /**< Rewind */
+    ia_scancode_media_next_track = 267,     /**< Next Track */
+    ia_scancode_media_previous_track = 268, /**< Previous Track */
+    ia_scancode_media_stop = 269,           /**< Stop */
+    ia_scancode_media_eject = 270,          /**< Eject */
+    ia_scancode_media_play_pause = 271,     /**< Play / Pause */
+    ia_scancode_media_select = 272,         /* Media Select */
 
-    IA_SCANCODE_AC_NEW = 273,               /**< AC New */
-    IA_SCANCODE_AC_OPEN = 274,              /**< AC Open */
-    IA_SCANCODE_AC_CLOSE = 275,             /**< AC Close */
-    IA_SCANCODE_AC_EXIT = 276,              /**< AC Exit */
-    IA_SCANCODE_AC_SAVE = 277,              /**< AC Save */
-    IA_SCANCODE_AC_PRINT = 278,             /**< AC Print */
-    IA_SCANCODE_AC_PROPERTIES = 279,        /**< AC Properties */
+    ia_scancode_ac_new = 273,               /**< AC New */
+    ia_scancode_ac_open = 274,              /**< AC Open */
+    ia_scancode_ac_close = 275,             /**< AC Close */
+    ia_scancode_ac_exit = 276,              /**< AC Exit */
+    ia_scancode_ac_save = 277,              /**< AC Save */
+    ia_scancode_ac_print = 278,             /**< AC Print */
+    ia_scancode_ac_properties = 279,        /**< AC Properties */
 
-    IA_SCANCODE_AC_SEARCH = 280,            /**< AC Search */
-    IA_SCANCODE_AC_HOME = 281,              /**< AC Home */
-    IA_SCANCODE_AC_BACK = 282,              /**< AC Back */
-    IA_SCANCODE_AC_FORWARD = 283,           /**< AC Forward */
-    IA_SCANCODE_AC_STOP = 284,              /**< AC Stop */
-    IA_SCANCODE_AC_REFRESH = 285,           /**< AC Refresh */
-    IA_SCANCODE_AC_BOOKMARKS = 286,         /**< AC Bookmarks */
+    ia_scancode_ac_search = 280,            /**< AC Search */
+    ia_scancode_ac_home = 281,              /**< AC Home */
+    ia_scancode_ac_back = 282,              /**< AC Back */
+    ia_scancode_ac_forward = 283,           /**< AC Forward */
+    ia_scancode_ac_stop = 284,              /**< AC Stop */
+    ia_scancode_ac_refresh = 285,           /**< AC Refresh */
+    ia_scancode_ac_bookmarks = 286,         /**< AC Bookmarks */
 
     /* these are values that are often used on mobile phones */
 
     /** Usually situated below the display on phones and used as a 
      *  multi-function feature key for selecting a software defined 
      *  function shown on the bottom left of the display. */
-    IA_SCANCODE_SOFTLEFT = 287,
+    ia_scancode_softleft = 287,
     /** Usually situated below the display on phones and used as a 
      *  multi-function feature key for selecting a software defined 
      *  function shown on the bottom right of the display. */
-    IA_SCANCODE_SOFTRIGHT = 288,
-    IA_SCANCODE_CALL = 289, /**< Used for accepting phone calls. */
-    IA_SCANCODE_ENDCALL = 290, /**< Used for rejecting phone calls. */
+    ia_scancode_softright = 288,
+    ia_scancode_call = 289, /**< Used for accepting phone calls. */
+    ia_scancode_endcall = 290, /**< Used for rejecting phone calls. */
 
     /* add any other keys here. */
 
-    IA_SCANCODE_RESERVED = 400, /**< 400-500 reserved for dynamic keycodes */
+    ia_scancode_reserved = 400, /**< 400-500 reserved for dynamic keycodes */
 
-    IA_SCANCODE_COUNT = 512 /**< Not a key, just marks the number of scancodes for array bounds */
+    ia_scancode_count = 512 /**< Not a key, just marks the number of scancodes for array bounds */
 } ia_scancode;

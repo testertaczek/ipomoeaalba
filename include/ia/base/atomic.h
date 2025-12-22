@@ -18,12 +18,11 @@
  *      synchronization between threads. To which extent this happens is controlled by the memory models,
  *      which are listed in this enum in approximately ascending order of strength. The descriptions of 
  *      each model is only meant to roughly illustrate the effects and is not a specification. 
- *      C++11 memory models can be seen for precise semantics.
+ *      C++11 memory models can be seen for precise semantics. The `atomic_order_consume` is 
+ *      effectively broken, as compilers implement it as the stronger "acquire" memory model. 
+ *      Because of this order consume has been excluded from this atomic wrapper.
  * 
- *      ia_atomic_model_unordered   Implies no inter-thread ordering constraints.
- * 
- *      ia_atomic_model_monotonic   Is implemented either as `unordered`, or as the stronger `acquire` model,
- *                                  depending on the platform.
+ *      ia_atomic_model_monotonic   Implies no inter-thread ordering constraints.
  * 
  *      ia_atomic_model_acquire     Creates an inter-thread happens-before constraint from the release 
  *                                  (or stronger) semantic store to this acquire load. Can prevent hoisting 
@@ -53,9 +52,6 @@
  * 
  *  @def ia_atomic_signal_fence(model)
  *  @brief Fence between a thread and a signal handler executed in the same thread.
- * 
- *  @def ia_atomic_is_lock_free(*obj)
- *  @brief Checks if the atomic type's operations are lock-free.
  * 
  *  @def ia_atomic_write(*obj, value, model)
  *  @brief Atomically replaces the value of the atomic object with a non-atomic argument.
@@ -103,23 +99,24 @@
  *      and obtains the previous value of the atomic.
  */
 #include <ia/base/types.h>
+#include <ia/base/sanitize.h>
 
 #define _IA_ATOMIC_IMPL_CXX    0
 #define _IA_ATOMIC_IMPL_C11    1
-#define _IA_ATOMIC_IMPL_CLANG  2
-#define _IA_ATOMIC_IMPL_GCC    3
+#define _IA_ATOMIC_IMPL_GNUC   2
+#define _IA_ATOMIC_IMPL_CLANG  3
 
 #ifndef IA_ATOMIC_IMPL
     #ifdef __cplusplus
         #define IA_ATOMIC_IMPL _IA_ATOMIC_IMPL_CXX
     #elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
         #define IA_ATOMIC_IMPL _IA_ATOMIC_IMPL_C11
+    #elif IA_CC_GNUC_VERSION_CHECK(4,7,0)
+        #define IA_ATOMIC_IMPL _IA_ATOMIC_IMPL_GNUC
     #elif defined(IA_CC_CLANG_VERSION) && __has_extension(c_atomic)
         #define IA_ATOMIC_IMPL _IA_ATOMIC_IMPL_CLANG
-    #elif IA_CC_GNUC_VERSION_CHECK(4,7,0)
-        #define IA_ATOMIC_IMPL _IA_ATOMIC_IMPL_GCC
     #else
-        #error Can't figure out default intrinsics for IA_ATOMIC_IMPL.
+        #error Invalid default intrinsics for IA_ATOMIC_IMPL.
     #endif /* __cplusplus */
 #endif /* IA_ATOMIC_IMPL */
 
@@ -127,21 +124,19 @@
 #if IA_ATOMIC_IMPL == _IA_ATOMIC_IMPL_CXX
     #include <atomic>
 
-    typedef enum ia_atomic_model : i32 {
-        ia_atomic_model_unordered = std::memory_order_relaxed,
-        ia_atomic_model_monotonic = std::memory_order_consume,
+    typedef enum ia_atomic_model {
+        ia_atomic_model_monotonic = std::memory_order_relaxed,
         ia_atomic_model_acquire   = std::memory_order_acquire,
         ia_atomic_model_release   = std::memory_order_release,
         ia_atomic_model_acq_rel   = std::memory_order_acq_rel,
         ia_atomic_model_seq_cst   = std::memory_order_seq_cst,
     } ia_atomic_model;
 
-    #define IA_ATOMIC(T)                std::atomic<T>
+    #define IA_ATOMIC(T) std::atomic<T>
 
     #define ia_atomic_init              std::atomic_init
     #define ia_atomic_thread_fence      std::atomic_thread_fence
     #define ia_atomic_signal_fence      std::atomic_signal_fence
-    #define ia_atomic_is_lock_free      std::atomic_is_lock_free
 
     #define ia_atomic_write             std::atomic_store_explicit
     #define ia_atomic_read              std::atomic_load_explicit
@@ -160,21 +155,19 @@
 #elif IA_ATOMIC_IMPL == _IA_ATOMIC_IMPL_C11
     #include <stdatomic.h>
 
-    typedef enum ia_atomic_model : i32 {
-        ia_atomic_model_unordered = memory_order_relaxed,
-        ia_atomic_model_monotonic = memory_order_consume,
+    typedef enum ia_atomic_model {
+        ia_atomic_model_monotonic = memory_order_relaxed,
         ia_atomic_model_acquire   = memory_order_acquire,
         ia_atomic_model_release   = memory_order_release,
         ia_atomic_model_acq_rel   = memory_order_acq_rel,
         ia_atomic_model_seq_cst   = memory_order_seq_cst,
     } ia_atomic_model;
 
-    #define IA_ATOMIC(T)                _Atomic T
+    #define IA_ATOMIC(T) _Atomic T
 
     #define ia_atomic_init              atomic_init
     #define ia_atomic_thread_fence      atomic_thread_fence
     #define ia_atomic_signal_fence      atomic_signal_fence
-    #define ia_atomic_is_lock_free      atomic_is_lock_free
                                        
     #define ia_atomic_write             atomic_store_explicit
     #define ia_atomic_read              atomic_load_explicit
@@ -191,21 +184,19 @@
 
 /* Clang __c11_atomic wrapper */
 #elif IA_ATOMIC_IMPL == _IA_ATOMIC_IMPL_CLANG
-    typedef enum ia_atomic_model : i32 {
-        ia_atomic_model_unordered = __ATOMIC_RELAXED,
-        ia_atomic_model_monotonic = __ATOMIC_CONSUME,
+    typedef enum ia_atomic_model {
+        ia_atomic_model_monotonic = __ATOMIC_RELAXED,
         ia_atomic_model_acquire   = __ATOMIC_ACQUIRE,
         ia_atomic_model_release   = __ATOMIC_RELEASE,
         ia_atomic_model_acq_rel   = __ATOMIC_ACQ_REL,
         ia_atomic_model_seq_cst   = __ATOMIC_SEQ_CST,
     } ia_atomic_model;
 
-    #define IA_ATOMIC(T)                _Atomic T
+    #define IA_ATOMIC(T) T
 
     #define ia_atomic_init              __c11_atomic_init
     #define ia_atomic_thread_fence      __c11_atomic_thread_fence
     #define ia_atomic_signal_fence      __c11_atomic_signal_fence
-    #define ia_atomic_is_lock_free(o)   __c11_atomic_is_lock_free(sizeof(o))
                                         
     #define ia_atomic_write             __c11_atomic_store
     #define ia_atomic_read              __c11_atomic_load
@@ -223,21 +214,19 @@
 
 /* GCC __atomic wrapper */
 #elif IA_ATOMIC_IMPL == _IA_ATOMIC_IMPL_GCC
-    typedef enum ia_atomic_model : i32 {
-        ia_atomic_model_unordered = __ATOMIC_RELAXED,
-        ia_atomic_model_monotonic = __ATOMIC_CONSUME,
+    typedef enum ia_atomic_model {
+        ia_atomic_model_monotonic = __ATOMIC_RELAXED,
         ia_atomic_model_acquire   = __ATOMIC_ACQUIRE,
         ia_atomic_model_release   = __ATOMIC_RELEASE,
         ia_atomic_model_acq_rel   = __ATOMIC_ACQ_REL,
         ia_atomic_model_seq_cst   = __ATOMIC_SEQ_CST,
     } ia_atomic_model;
 
-    #define IA_ATOMIC(T)                _Atomic T
+    #define IA_ATOMIC(T) T
 
     #define ia_atomic_init(o, val)      (*(o) = (val))
     #define ia_atomic_thread_fence      __atomic_thread_fence
     #define ia_atomic_signal_fence      __atomic_signal_fence
-    #define ia_atomic_is_lock_free      __atomic_is_lock_free
                                         
     #define ia_atomic_write             __atomic_store_n
     #define ia_atomic_read              __atomic_load_n
@@ -270,7 +259,7 @@
 #ifndef ia_atomic_nand
 #define ia_atomic_nand(rmw, operand, model) \
     do { \
-        typeof(operand) __old = ia_atomic_read(rmw, ia_atomic_model_unordered); \
+        typeof(operand) __old = ia_atomic_read(rmw, ia_atomic_model_monotonic); \
         typeof(operand) __new = ~(__old & operand); \
     } while (!ia_atomic_cmpxchg_weak(rmw, &__old, __new, model, model))
 #endif /* ia_atomic_nand */
@@ -294,29 +283,149 @@ typedef IA_ATOMIC(bool)    atomic_bool;
 /** When an operation on an atomic variable is not expected to synchronize
  *  with operations on other (atomic or non-atomic) variables, no memory barriers
  *  are needed and the relaxed memory ordering can be used. These macros make 
- *  writing such unordered operations less daunting, but not invisible. */
-#define ia_atomic_write_unordered(dst, val) \
-    ia_atomic_write(dst, val, ia_atomic_model_unordered)
-#define ia_atomic_read_unordered(dst) \
-    ia_atomic_read(dst, ia_atomic_model_unordered)
-#define ia_atomic_cmpxchg_unordered(dst, exp, val, is_weak) \
-    ia_atomic_cmpxchg(dst, exp, val, is_weak, ia_atomic_model_unordered, ia_atomic_model_unordered)
+ *  writing such monotonic operations less daunting, but not invisible. */
 
-/** These implicitly unordered RMW operations always return the value that had previously been in `rmw`:
+#define ia_atomic_write_monotonic(dst, val) \
+    ia_atomic_write(dst, val, ia_atomic_model_monotonic)
+#define ia_atomic_read_monotonic(dst) \
+    ia_atomic_read(dst, ia_atomic_model_monotonic)
+
+#define ia_atomic_cmpxchg_monotonic(dst, exp, val, is_weak) \
+    ia_atomic_cmpxchg(dst, exp, val, is_weak, ia_atomic_model_monotonic, ia_atomic_model_monotonic)
+#define ia_atomic_cmpxchg_strong_monotonic(dst, exp, val) \
+    ia_atomic_cmpxchg_strong(dst, exp, val, ia_atomic_model_monotonic, ia_atomic_model_monotonic)
+#define ia_atomic_cmpxchg_weak_monotonic(dst, exp, val) \
+    ia_atomic_cmpxchg_weak(dst, exp, val, ia_atomic_model_monotonic, ia_atomic_model_monotonic)
+
+/** These implicitly monotonic RMW operations always return the value that had previously been in `rmw`:
  *      T ia_atomic_OP(T *rmw, T val)
  *      { tmp = *rmw; *rmw op= val; return tmp; }
  *      { tmp = *rmw; *rmw = ~(*rmw & val); return tmp; } [nand] */
-#define ia_atomic_xchg_unordered(rmw, val) \
-    ia_atomic_xchg(rmw, val, ia_atomic_model_unordered)
-#define ia_atomic_add_unordered(rmw, val) \
-    ia_atomic_add(rmw, val, ia_atomic_model_unordered)
-#define ia_atomic_sub_unordered(rmw, val) \
-    ia_atomic_sub(rmw, val, ia_atomic_model_unordered)
-#define ia_atomic_and_unordered(rmw, val) \
-    ia_atomic_and(rmw, val, ia_atomic_model_unordered)
-#define ia_atomic_xor_unordered(rmw, val) \
-    ia_atomic_xor(rmw, val, ia_atomic_model_unordered)
-#define ia_atomic_or_unordered(rmw, val) \
-    ia_atomic_or(rmw, val, ia_atomic_model_unordered)
-#define ia_atomic_nand_unordered(rmw, val) \
-    ia_atomic_nand(rmw, val, ia_atomic_model_unordered)
+#define ia_atomic_xchg_monotonic(rmw, val) \
+    ia_atomic_xchg(rmw, val, ia_atomic_model_monotonic)
+#define ia_atomic_add_monotonic(rmw, val) \
+    ia_atomic_add(rmw, val, ia_atomic_model_monotonic)
+#define ia_atomic_sub_monotonic(rmw, val) \
+    ia_atomic_sub(rmw, val, ia_atomic_model_monotonic)
+#define ia_atomic_and_monotonic(rmw, val) \
+    ia_atomic_and(rmw, val, ia_atomic_model_monotonic)
+#define ia_atomic_xor_monotonic(rmw, val) \
+    ia_atomic_xor(rmw, val, ia_atomic_model_monotonic)
+#define ia_atomic_or_monotonic(rmw, val) \
+    ia_atomic_or(rmw, val, ia_atomic_model_monotonic)
+#define ia_atomic_nand_monotonic(rmw, val) \
+    ia_atomic_nand(rmw, val, ia_atomic_model_monotonic)
+
+/** Hint to the CPU that the current thread is in a busy-wait spin loop. */
+IA_FORCE_INLINE void
+ia_cpu_relax(void) {
+#if defined(IA_ARCH_X86) || defined(IA_ARCH_AMD64)
+    /* pause improves HT fairness, reduces power */
+    __asm__ __volatile__("pause" ::: "memory");
+#elif defined(IA_ARCH_ARM) || defined(IA_ARCH_AARCH64)
+    /* ARM yield hint */
+    __asm__ __volatile__("yield" ::: "memory");
+#elif defined(IA_ARCH_RISCV)
+    /* RISC-V pause hint (Zihintpause if available) */
+    __asm__ __volatile__(".insn i 0x0f, 0, x0, x0, 0x010" ::: "memory");
+#else
+    /* fallback to compiler barrier */
+    __asm__ __volatile__("" ::: "memory");
+#endif
+}
+
+/** A spinlock type, used for busy-wait synchronization between threads. */
+typedef atomic_i32 IA_THREAD_SAFETY_CAPABILITY("mutex") ia_spinlock;
+#define ia_spinlock_init {0}
+
+/** Acquires a spinlock, tries an optimal acquire before spinning. */
+IA_FORCE_INLINE void
+ia_spinlock_acquire(ia_spinlock *lock)
+    IA_THREAD_SAFETY_ACQUIRE(lock)
+{
+    i32 expected = 0;
+    if (IA_LIKELY(ia_atomic_cmpxchg_weak(lock, &expected, 1, ia_atomic_model_acquire, ia_atomic_model_monotonic)))
+        return;
+    for (;;) {
+        while (ia_atomic_read_monotonic(lock) != 0)
+            ia_cpu_relax();
+        expected = 0;
+        if (ia_atomic_cmpxchg_weak(lock, &expected, 1, ia_atomic_model_acquire, ia_atomic_model_monotonic))
+            return;
+    }
+}
+
+/** Tries to acquire a spinlock, may fail. */
+IA_FORCE_INLINE bool
+ia_spinlock_try_acquire(ia_spinlock *lock)
+    IA_THREAD_SAFETY_TRY_ACQUIRE(lock)
+{ 
+    i32 expected = 0;
+    return ia_atomic_cmpxchg_weak(lock, &expected, 1, ia_atomic_model_acquire, ia_atomic_model_monotonic); 
+}
+
+/** Releases a spinlock acquired with `ia_spinlock_acquire`. */
+IA_FORCE_INLINE void
+ia_spinlock_release(ia_spinlock *lock) 
+    IA_THREAD_SAFETY_RELEASE(lock)
+{
+#ifdef IA_DEBUG
+    /* tries to catch double-unlock */
+    i32 prev = ia_atomic_xchg(lock, 0, ia_atomic_model_release);
+    IA_ASSUME(prev == 1 && "spinlock unlock without a locked state");
+#else
+    ia_atomic_write(lock, 0, ia_atomic_model_release);
+#endif
+}
+
+/** The scoped spinlock has no implications on performance or synchronization and 
+ *  no runtime cost over a normal spinlock. It has but compile-time implications.
+ *  A scoped guard forces a visible structure acquisition happens in one expression,
+ *  release is tied to a concrete object, and it becomes harder to forget to release,
+ *  or mismatch acquire/release pairs. It's advised to use spinlocks this way.
+ *
+ *  Example usage:
+ *      struct data_type {
+ *          ia_spinlock lock;
+ *          i32         counter IA_THREAD_SAFETY_GUARDED_BY(lock);
+ *      };
+ *
+ *      void f1(struct data_type *d) {
+ *          ia_spinlock_scoped guard = ia_spinlock_scoped_acquire(&d->lock);
+ *          ...
+ *          d->counter++;
+ *          if (fail) goto out;
+ *          ...
+ *          out:
+ *          ia_spinlock_scoped_release(&guard);
+ *      } 
+ *
+ *      void f2(struct data_type *d) {
+ *          ia_defer_begin
+ *          ia_spinlock_scoped guard = ia_spinlock_scoped_acquire(&d->lock);
+ *          ia_defer({ ia_spinlock_scoped_release(&guard); })
+ *          ...
+ *          d->counter++;
+ *          ...
+ *          ia_defer_return;
+ *      } */
+typedef struct IA_THREAD_SAFETY_SCOPED_CAPABILITY ia_spinlock_scoped {
+    ia_spinlock *lock;
+} ia_spinlock_scoped;
+
+/** Acquires a spinlock, returns a scoped guard lock. */
+IA_FORCE_INLINE ia_spinlock_scoped
+ia_spinlock_scoped_acquire(ia_spinlock *lock)
+    IA_THREAD_SAFETY_ACQUIRE(lock)
+{
+    ia_spinlock_acquire(lock);
+    return (ia_spinlock_scoped){ lock };
+}
+
+/** Releases a spinlock acquired with `ia_spinlock_scoped_acquire`. */
+IA_FORCE_INLINE void
+ia_spinlock_scoped_release(ia_spinlock_scoped *s)
+    IA_THREAD_SAFETY_RELEASE(s->lock)
+{
+    ia_spinlock_release(s->lock);
+}

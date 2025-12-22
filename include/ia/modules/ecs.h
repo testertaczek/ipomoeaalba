@@ -3,8 +3,7 @@
 /// @brief TODO docs
 ///
 /// TODO docs
-#ifdef IA_MODULE_ECS
-#include <ia/base/types.h>
+#include <ia/foundation.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,4 +14,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
-#endif /* IA_MODULE_ECS */

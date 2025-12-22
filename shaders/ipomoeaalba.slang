@@ -54,12 +54,12 @@ _IA_DECL_MAT_TYPES(half, f16)
 _IA_DECL_MAT_TYPES(float, f32)
 _IA_DECL_MAT_TYPES(double, f64)
 
-#define IA_GFX_ID_INDEX_BITS        (20)
-#define IA_GFX_ID_INDEX_MASK        ((u64(1) << IA_GFX_ID_INDEX_BITS) - u64(1))
-#define IA_GFX_ID_INDEX_OFFSET      (0)
-#define IA_GFX_ID_VERSION_BITS      (44)
-#define IA_GFX_ID_VERSION_MASK      ((u64(1) << IA_GFX_ID_VERSION_BITS) - u64(1))
-#define IA_GFX_ID_VERSION_OFFSET    IA_GFX_ID_INDEX_BITS
+#define IA_RENDER_ID_INDEX_BITS     (20)
+#define IA_RENDER_ID_INDEX_MASK     ((u64(1) << IA_RENDER_ID_INDEX_BITS) - u64(1))
+#define IA_RENDER_ID_INDEX_OFFSET   (0)
+#define IA_RENDER_ID_VERSION_BITS   (44)
+#define IA_RENDER_ID_VERSION_MASK   ((u64(1) << IA_RENDER_ID_VERSION_BITS) - u64(1))
+#define IA_RENDER_ID_VERSION_OFFSET IA_GFX_ID_INDEX_BITS
 
 _IA_DECL_STORAGE_BUFFERS            __DynamicResource               ia_buffers[];
 _IA_DECL_STORAGE_BUFFERS            coherent __DynamicResource      ia_buffers_coherent[];
