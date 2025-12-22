@@ -1,0 +1,24 @@
+[submodule "external/directx-headers"]
+	path = external/directx-headers
+	url = https://github.com/microsoft/DirectX-Headers
+[submodule "external/vulkan-headers"]
+	path = external/vulkan-headers
+	url = https://github.com/KhronosGroup/Vulkan-Headers
+[submodule "external/spirv-headers"]
+	path = external/spirv-headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers
+[submodule "external/spirv-tools"]
+	path = external/spirv-tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools
+[submodule "external/openxr-sdk"]
+	path = external/openxr-sdk
+	url = https://github.com/KhronosGroup/OpenXR-SDK/
+[submodule "external/slang"]
+	path = external/slang
+	url = https://github.com/shader-slang/slang
+[submodule "external/lua"]
+	path = external/lua
+	url = https://github.com/lua/lua
+[submodule "external/imgui"]
+	path = external/imgui
+	url = https://github.com/ocornut/imgui
