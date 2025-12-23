@@ -1,9 +1,12 @@
 #pragma once
-/// @file ia/modules/phys.h
-/// @brief TODO docs
-///
-/// TODO docs
+/** @file ia/render_graph.h
+ *  @brief TODO docs
+ * 
+ *  TODO docs
+ */
 #include <ia/foundation.h>
+#include <ia/render.h>
+#include <ia/render_commands.h>
 
 #ifdef __cplusplus
 extern "C" {

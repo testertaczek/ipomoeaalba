@@ -34,7 +34,10 @@ typedef struct IA_CACHELINE_ALIGNMENT ia_mpmc {
     u8         _pad1[IA_CACHELINE_SIZE - sizeof(atomic_isize)];
 
     atomic_isize    dequeue_pos;
-    u8         _pad2[IA_CACHELINE_SIZE - sizeof(atomic_isize)];
+    u8         _pad2[IA_CACHELINE_SIZE - sizeof(atomic_isize) - sizeof(char const *)];
+#ifdef IA_DEBUG
+    char const     *dbg_name;
+#endif
 } ia_mpmc;
 
 /** Initializes the MPMC data structure. Buffer memory must be externally managed.
@@ -48,10 +51,13 @@ ia_mpmc_init_(
     atomic_isize   *sequence_buffer,
     char const     *type_name)
 {
-    ia_dbg_assert(ia_is_pow2(cell_count), -1, type_name);
+    ia_dbg_assert(ia_is_pow2(cell_count), "%s", type_name);
     mpmc->mask = cell_count -1;
     mpmc->data = data_buffer;
     mpmc->sequence = sequence_buffer;
+#ifdef IA_DEBUG
+    mpmc->dbg_name = type_name;
+#endif
     for (isize i; i < cell_count; i++) 
         ia_atomic_write_monotonic(&mpmc->sequence[i], i);
     ia_atomic_write_monotonic(&mpmc->enqueue_pos, 0); \

@@ -1,5 +1,9 @@
 #pragma once
-
+/** @file ia/foundation.h
+ *  @brief TODO docs
+ * 
+ *  TODO docs
+ */
 #include <ia/base/targets.h>
 #include <ia/base/types.h>
 #include <ia/base/magic.h>
@@ -46,39 +50,62 @@ extern "C" {
 
 /** TODO docs */
 typedef struct ia_foundation_hints {
-    usize               default_stack_size;
-    u32                 thread_count;
-    u32                 fiber_count;
-    u32                 log2_work_count;
+    usize                   default_stack_size;
+    u32                     thread_count;
+    u32                     fiber_count;
+    u32                     log2_work_count;
 } ia_foundation_hints;
 
 /** TODO docs */
 typedef struct ia_foundation_host {
-    u64                 timer_begin;
-    usize               total_ram;
-    usize               page_size_in_use;
-    ia_hugepage_sizes   hugepage_sizes;
-    i32                 cpu_thread_count, cpu_cores_count, cpu_package_count;
+    u64                     timer_begin;
+    usize                   total_ram;
+    usize                   page_size_in_use;
+    ia_hugepage_sizes       hugepage_sizes;
+    i32                     cpu_thread_count, cpu_cores_count, cpu_package_count;
 } ia_foundation_host;
 
 /** TODO docs */
 typedef struct ia_foundation {
-    char const         *engine_name;
-    char const         *app_name;
-    u32                 engine_version;
-    u32                 app_version;
-    i32                 argc;
-    char const        **argv;
-    ia_foundation_hints hints;
-    ia_foundation_host  host;
+    char const             *engine_name;
+    char const             *app_name;
+    u32                     engine_version;
+    u32                     app_version;
+    i32                     argc;
+    char const            **argv;
+    ia_foundation_hints     hints;
+    ia_foundation_host      host;
 } ia_foundation;
 
 /** TODO docs */
-typedef void (IA_CALL *ia_foundation_main_fn)(void *data, ia_foundation const *foundation);
-    
+typedef struct ia_interface_header {
+    ia_foundation const    *foundation;    
+    i32                     kind;
+    u32                     version;
+    ia_work_fn              destructor;
+    char const             *name;
+} ia_interface_header;
+
 /** TODO docs */
+#define IA_DECL_LIBRARY(X) \
+    typedef union ia_##X##_library { \
+        struct ia_##X##_adapter    *a; \
+        struct ia_##X##_interface  *i; \
+        ia_interface_header        *h; \
+        void                       *v; \
+    } ia_##X##_library; \
+    typedef struct ia_##X##_adapter     ia_##X##_adapter; \
+    typedef struct ia_##X##_interface   ia_##X##_interface
+
+/** TODO docs */
+typedef ia_result (IA_CALL *ia_library_impl_fn)(ia_foundation const *foundation, void *out_adapter);
+#define IA_DECL_LIBRARY_IMPL(X, KIND) \
+    ia_result IA_CALL ia_##X##_impl_##KIND(ia_foundation const *foundation, ia_##X##_adapter *out_adapter)
+
+/** TODO docs */
+typedef i32 (IA_CALL *ia_foundation_main_fn)(void *data, ia_foundation const *foundation);
 #define IA_FOUNDATION_MAIN_FN(fn, arg) \
-    void IA_CALL fn(arg, ia_foundation const *foundation)
+    i32 IA_CALL fn(arg, ia_foundation const *foundation)
 
 /** TODO docs */
 IA_NONNULL(1,3) IA_API i32 IA_CALL

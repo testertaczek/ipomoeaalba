@@ -54,12 +54,20 @@ typedef void (IA_CALL *ia_work_fn)(void *work);
 #define IA_WORK_FN(fn, T) \
     void IA_CALL fn(T *work)
 
+/** Controls how the internal scheduler distributes this work. */
+typedef enum ia_work_schedule : i8 {
+    ia_work_schedule_default = 0,   /**< No implications for the scheduler, generally low priority. */
+    ia_work_schedule_aggressive,    /**< Is important and should run on a higher-priority queue. */
+    ia_work_schedule_main_affinity, /**< May only ever run from the main thread, OS implications, highest priority. */
+} ia_work_schedule;
+
 /** Details of a work term to be executed by the job system. */
 typedef struct ia_work_details {
-    ia_work_fn      fn;         /**< Work to run. */
-    void           *data;       /**< Data for the work. */
-    usize           stacksize;  /**< Minimal stack size required to run this work, value 0 set's it to default. */
-    char const     *name;       /**< A fiber will adopt this name for profiling. */
+    ia_work_fn          fn;         /**< Work to run. */
+    void               *data;       /**< Data for the work. */
+    u32                 stacksize;  /**< Minimal stack size required to run this work, value 0 set's it to default. */
+    ia_work_schedule    schedule;   /**< If true work may only be done from the main thread. */
+    char const         *name;       /**< A fiber will adopt this name for profiling. */
 } ia_work_details;
 
 /** An atomic counter bound to a work submission. It's always returned by the job system after a submit. 
@@ -78,6 +86,11 @@ typedef atomic_isize *ia_work_chain;
  *  @return Current worker thread index in the range [0..thread_count]. */
 IA_HOT_FN IA_API i32 IA_CALL
 ia_worker_thread_index(void);
+
+/** @return `true` if called from the main thread, otherwise `false`. */
+IA_FORCE_INLINE bool 
+ia_worker_thread_main_affinity(void)
+{ return ia_worker_thread_index() == 0; }
 
 /** Submits `work_count` of work to the queue, using details provided by the array `work`. This function 
  *  will return IMMEDIATELY, and the given work will be resolved in the background running on any other thread.

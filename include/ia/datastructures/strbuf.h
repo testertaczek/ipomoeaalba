@@ -19,7 +19,7 @@ typedef struct ia_strbuf {
     i32     alloc;      /**< A "private" member describing the capacity of the buffer. */
 } ia_strbuf;
 
-static constexpr struct ia_strbuf ia_strbuf_init = { .v = nullptr, .len = 0, .alloc = 0 };
+static constexpr ia_strbuf ia_strbuf_init = { .v = nullptr, .len = 0, .alloc = 0 };
 
 /** Append the buffer using maximum of N bytes from a (preferrably null-terminated) cstr. */
 IA_API void IA_CALL 

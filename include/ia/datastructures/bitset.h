@@ -10,7 +10,11 @@
 extern "C" {
 #endif /* __cplusplus */
 
-// TODO
+typedef struct ia_bitset {
+    u64    *v;
+    i32     size;
+    i32     alloc;
+} ia_bitset;
 
 #ifdef __cplusplus
 }

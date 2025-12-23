@@ -28,18 +28,6 @@ extern "C" {
     #endif
 #endif /* IA_CACHELINE_SIZE */
 
-#ifndef IA_SIMD_REGISTER_SIZE
-    #ifdef IA_ARCH_X86_AVX
-        /* matrix to be used by AVX 256-bit registers */
-        #define IA_SIMD_REGISTER_SIZE (32)
-    #elifndef IA_SIMD_DISABLED
-        /* by default use 16-byte alignment rules for SIMD data */
-        #define IA_SIMD_REGISTER_SIZE (16)
-    #else /* fallback to 8-byte alignment */
-        #define IA_SIMD_REGISTER_SIZE (8)
-    #endif
-#endif /* IA_SIMD_REGISTER_SIZE */
-
 #ifndef IA_ALIGN_MAXIMUM
     #ifdef IA_CC_MSVC_VERSION
         #if IA_CC_MSVC_VERSION_CHECK(19,16,0)
@@ -83,7 +71,17 @@ extern "C" {
     #endif
 #endif /* IA_ALIGNMENT */
 /* Set alignment rules to match the vector extension register size divided by 8. */
-#define IA_SIMD_ALIGNMENT       IA_ALIGNMENT(IA_SIMD_REGISTER_SIZE/8)
+#ifndef IA_SIMD_ALIGNMENT
+    #ifdef IA_ARCH_X86_AVX
+        /* matrix to be used by AVX 256-bit registers */
+        #define IA_SIMD_ALIGNMENT IA_ALIGNMENT(32)
+    #elifndef IA_SIMD_DISABLED
+        /* by default use 16-byte alignment rules for SIMD data */
+        #define IA_SIMD_ALIGNMENT IA_ALIGNMENT(16)
+    #else /* fallback to no alignment */
+        #define IA_SIMD_ALIGNMENT 
+    #endif
+#endif /* IA_SIMD_ALIGNMENT */
 /* Set alignment rules to match the size of the cacheline (64 or 128 bytes). */
 #define IA_CACHELINE_ALIGNMENT  IA_ALIGNMENT(IA_CACHELINE_SIZE)
 
@@ -232,6 +230,44 @@ typedef _Complex double long        cmplxl;
 #else
     #define IA_CMPLXL(re, im)       (_Complex long double)((long double)(re) + _Complex_I * (long double)(im))
 #endif /* IA_CMPLXL */
+
+/** Used to mask indices of unique devices as bitshifts, useful for scheduling in multi-device setups (e.g. mGPU). */
+typedef u32 ia_schedule_mask;
+
+/** Represents bitsets for different systems. Live values are usually baked up as atomic. */
+typedef u32 ia_flags;
+
+/** Represents a device address, big enough to fit any CPU/GPU hardware pointer. */
+typedef u64 ia_address;
+
+/** IDs may have different representation between modules, and they will be typedef'd as necessary.
+ *  Most representations of IDs consist of an unique index in the lower 32-bits and a reference counter
+ *  in the upper 32-bits. They may represent entities, pairs, opaque handles to data (like GPU resources)
+ *  and may include optional flags. Detailed representations are specific to their module. */
+typedef u64 ia_identifier;
+
+/* These macros assume an ID representation of 32-bits for index and 32-bits for version. */
+#define IA_IDENTIFIER_INDEX_BITS    (32)
+#define IA_IDENTIFIER_INDEX_MASK    ((1ull << IA_IDENTIFIER_INDEX_BITS) - 1ull)
+#define IA_IDENTIFIER_VERSION_SHIFT IA_IDENTIFIER_INDEX_BITS
+
+#define ia_identifier_raw(IDX, VER) \
+    ((ia_identifier)(((u64)(VER) << IA_IDENTIFIER_INDEX_BITS) | ((u64)(IDX) & IA_IDENTIFIER_INDEX_MASK)))
+#define ia_identifier_make(T, IDX, VER) \
+    ((T){ .id = ia_identifier_raw(IDX, VER) })
+#define ia_identifier_cast(T, ID) \
+    ((T){ .id = (ID).id })
+
+#define ia_identifier_get_index(ID) \
+    ((u32)((ID) & IA_IDENTIFIER_INDEX_MASK))
+#define ia_identifier_get_version(ID) \
+    ((u32)((ID) >> IA_IDENTIFIER_INDEX_BITS))
+#define ia_identifier_set_index(ID, IDX) \
+    ((ID) = ((ID) & ~IA_IDENTIFIER_INDEX_MASK) | ((IDX) & IA_IDENTIFIER_INDEX_MASK))
+#define ia_identifier_set_version(ID, VER) \
+    ((ID) = ((ID) & IA_IDENTIFIER_INDEX_MASK) | ((u64)(VER) << IA_IDENTIFIER_VERSION_SHIFT))
+#define ia_identifier_is_empty(ID) \
+    (ia_identifier_get_version(ID) == 0)
 
 /** Declares vector and matrix types:
  *  Tx2 Tx3 Tx4; Tm2x2 Tm2x3 Tm2x4; Tm3x2 Tm3x3 Tm3x4; Tm4x2 Tm4x3 Tm4x4. */
@@ -391,6 +427,11 @@ typedef struct ia_buffer {
     void   *data;
     usize   size;   /**< Size in bytes. */
 } ia_buffer;
+
+typedef enum ia_result {
+    ia_result_success = 0,
+    ia_result_unknown_error = -1,
+} ia_result;
 
 #ifdef __cplusplus
 }
