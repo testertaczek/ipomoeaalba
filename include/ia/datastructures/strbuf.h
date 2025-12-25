@@ -14,9 +14,8 @@ extern "C" {
 
 /** The string buffer structure. */
 typedef struct ia_strbuf {
-    char   *v;          /**< A byte array of atleast `len + 1` bytes allocated. */
-    i32     len;        /**< Used to determine the current length of the string. */
-    i32     alloc;      /**< A "private" member describing the capacity of the buffer. */
+    char   *v; /**< A byte array of atleast `len + 1` bytes allocated. */
+    i32     len, alloc;
 } ia_strbuf;
 
 static constexpr ia_strbuf ia_strbuf_init = { .v = nullptr, .len = 0, .alloc = 0 };

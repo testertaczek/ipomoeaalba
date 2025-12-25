@@ -280,6 +280,8 @@ typedef IA_ATOMIC(isize)   atomic_isize;
 typedef IA_ATOMIC(usize)   atomic_usize;
 typedef IA_ATOMIC(bool)    atomic_bool;
 
+typedef IA_ATOMIC(ia_flags) ia_flags_atomic;
+
 /** When an operation on an atomic variable is not expected to synchronize
  *  with operations on other (atomic or non-atomic) variables, no memory barriers
  *  are needed and the relaxed memory ordering can be used. These macros make 

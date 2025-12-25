@@ -80,7 +80,7 @@ typedef struct ia_foundation {
 /** TODO docs */
 typedef struct ia_interface_header {
     ia_foundation const    *foundation;    
-    i32                     kind;
+    i32                     adapter_impl;
     u32                     version;
     ia_work_fn              destructor;
     char const             *name;
@@ -90,7 +90,7 @@ typedef struct ia_interface_header {
 #define IA_DECL_LIBRARY(X) \
     typedef union ia_##X##_library { \
         struct ia_##X##_adapter    *a; \
-        struct ia_##X##_interface  *i; \
+        struct ia_##X##_interface const  *i; \
         ia_interface_header        *h; \
         void                       *v; \
     } ia_##X##_library; \

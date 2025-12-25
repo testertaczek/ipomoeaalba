@@ -47,12 +47,12 @@ extern "C" {
 typedef void (IA_CALL *ia_work_fn)(void *work);
 
 /** Redefines the work typedef with a compatible pointer type. */
-#define IA_WORK_FN_TYPEDEF(pfn, T) \
-    typedef void (IA_CALL *pfn)(T *work)
+#define IA_WORK_FN_TYPEDEF(pfn, arg) \
+    typedef void (IA_CALL *pfn)(arg)
 
 /** Defines an `ia_work_fn` prototype. */
-#define IA_WORK_FN(fn, T) \
-    void IA_CALL fn(T *work)
+#define IA_WORK_FN(fn, arg) \
+    void IA_CALL fn(arg)
 
 /** Controls how the internal scheduler distributes this work. */
 typedef enum ia_work_schedule : i8 {

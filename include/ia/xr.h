@@ -40,7 +40,6 @@ typedef struct ia_xr_frame_info {
 typedef struct ia_xr_view_info {
     ia_xr_swapchain         swapchain;
     i32                     image_index;
-    ia_schedule_mask        schedule_mask;
     f32m4x4                 view;
     f32m4x4                 projection;
 } ia_xr_view_info;

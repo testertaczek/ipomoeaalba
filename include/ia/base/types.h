@@ -64,7 +64,7 @@ extern "C" {
         #define IA_ALIGNMENT(alignment) __attribute__((__aligned__(_IA_ALIGN_CAP(alignment))))
     #elif defined(IA_CC_MSVC_VERSION)
         #define IA_ALIGNMENT(alignment) __declspec(align(_IA_ALIGN_CAP(alignment)))
-    #elif (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L))
+    #elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
         #define IA_ALIGNMENT(alignment) _Alignas(_IA_ALIGN_CAP(alignment))
     #else
         #define IA_ALIGNMENT(alignment) /* no alignment */
@@ -75,7 +75,7 @@ extern "C" {
     #ifdef IA_ARCH_X86_AVX
         /* matrix to be used by AVX 256-bit registers */
         #define IA_SIMD_ALIGNMENT IA_ALIGNMENT(32)
-    #elifndef IA_SIMD_DISABLED
+    #elif !defined(IA_SIMD_DISABLED)
         /* by default use 16-byte alignment rules for SIMD data */
         #define IA_SIMD_ALIGNMENT IA_ALIGNMENT(16)
     #else /* fallback to no alignment */
@@ -99,10 +99,6 @@ typedef intptr_t            iptr;
 typedef uintptr_t           uptr;
 typedef ptrdiff_t           isize;
 typedef size_t              usize;
-
-typedef char8_t             utf8;
-typedef char16_t            utf16;
-typedef char32_t            utf32;
 
 typedef float               f32;
 typedef double              f64;
@@ -231,21 +227,6 @@ typedef _Complex double long        cmplxl;
     #define IA_CMPLXL(re, im)       (_Complex long double)((long double)(re) + _Complex_I * (long double)(im))
 #endif /* IA_CMPLXL */
 
-/** Used to mask indices of unique devices as bitshifts, useful for scheduling in multi-device setups (e.g. mGPU). */
-typedef u32 ia_schedule_mask;
-
-/** Represents bitsets for different systems. Live values are usually baked up as atomic. */
-typedef u32 ia_flags;
-
-/** Represents a device address, big enough to fit any CPU/GPU hardware pointer. */
-typedef u64 ia_address;
-
-/** IDs may have different representation between modules, and they will be typedef'd as necessary.
- *  Most representations of IDs consist of an unique index in the lower 32-bits and a reference counter
- *  in the upper 32-bits. They may represent entities, pairs, opaque handles to data (like GPU resources)
- *  and may include optional flags. Detailed representations are specific to their module. */
-typedef u64 ia_identifier;
-
 /* These macros assume an ID representation of 32-bits for index and 32-bits for version. */
 #define IA_IDENTIFIER_INDEX_BITS    (32)
 #define IA_IDENTIFIER_INDEX_MASK    ((1ull << IA_IDENTIFIER_INDEX_BITS) - 1ull)
@@ -332,6 +313,27 @@ _IA_DECL_VEC_AND_MAT_TYPES(f64, IA_ALIGNMENT(16), IA_SIMD_ALIGNMENT)
 #define IA_2_SQRTPIf    ((float)IA_2_SQRTPI)
 #define IA_SQRT2f       ((float)IA_SQRT2)
 #define IA_SQRT1_2f     ((float)IA_SQRT1_2)
+
+/** IDs may have different representation between modules, and they will be typedef'd as necessary.
+ *  Most representations of IDs consist of an unique index in the lower 32-bits and a reference counter
+ *  in the upper 32-bits. They may represent entities, pairs, opaque handles to data (like GPU resources)
+ *  and may include optional flags. Detailed representations are specific to their module. */
+typedef u64 ia_identifier;
+
+/** Used to mask indices of unique values. */
+typedef u32 ia_bitmask;
+
+/** Represents bitsets for different systems. Live values are usually baked up as atomic. */
+typedef u32 ia_flags;
+
+/** Represents a device address, big enough to fit any CPU/GPU hardware pointer. */
+typedef u64 ia_address;
+
+typedef struct ia_strided_address_region {
+    ia_address  address;
+    u64         stride;
+    u64         size;
+} ia_strided_address_region;
 
 IA_FORCE_INLINE void 
 ia_force_evalf(f32 x) 
@@ -427,6 +429,94 @@ typedef struct ia_buffer {
     void   *data;
     usize   size;   /**< Size in bytes. */
 } ia_buffer;
+
+typedef enum ia_sample_count : u32 {
+    ia_sample_count_1   = (1u << 0),   
+    ia_sample_count_2   = (1u << 1),   
+    ia_sample_count_4   = (1u << 2),   
+    ia_sample_count_8   = (1u << 3),   
+    ia_sample_count_16  = (1u << 4),   
+    ia_sample_count_32  = (1u << 5),   
+    ia_sample_count_64  = (1u << 6),   
+} ia_sample_count;
+
+typedef union ia_color_value {
+    f32 f[4];
+    i32 i[4];
+    u32 u[4];
+} ia_color_value;
+
+typedef struct ia_depth_stencil_value {
+    f32 depth;
+    u32 stencil;
+} ia_depth_stencil_value;
+
+typedef union ia_clear_value {
+    ia_color_value          color;
+    ia_depth_stencil_value  depth_stencil;
+} ia_clear_value;
+
+typedef struct ia_depth_bias {
+    f32 constant_factor;
+    f32 clamp;
+    f32 slope_factor;
+} ia_depth_bias;
+
+typedef enum ia_index_format : i8 {
+    ia_index_format_invalid = 0,
+    ia_index_format_u16,
+    ia_index_format_u32,
+} ia_index_format;
+
+typedef enum ia_compare_op : i8 {
+    ia_compare_op_never = 0,
+    ia_compare_op_less,
+    ia_compare_op_equal,
+    ia_compare_op_less_or_equal,
+    ia_compare_op_not_equal,
+    ia_compare_op_greater,
+    ia_compare_op_greater_or_equal,
+    ia_compare_op_always,
+} ia_compare_op;
+
+typedef enum ia_read_op : i8 {
+    ia_read_op_load = 0,
+    ia_read_op_clear,
+    ia_read_op_dont_care,
+    ia_read_op_none,
+} ia_read_op;
+
+typedef enum ia_write_op : i8 {
+    ia_write_op_store = 0,
+    ia_write_op_dont_care,
+    ia_write_op_none,
+} ia_store_op;
+
+typedef enum ia_stencil_op : i8 {
+    ia_stencil_op_keep = 0,
+    ia_stencil_op_zero,
+    ia_stencil_op_replace,
+    ia_stencil_op_increment,
+    ia_stencil_op_decrement,
+    ia_stencil_op_increment_wrap,
+    ia_stencil_op_decrement_wrap,
+    ia_stencil_op_invert,
+} ia_stencil_op;
+
+typedef enum ia_stencil_face : i8 {
+    ia_stencil_face_front = 0,
+    ia_stencil_face_back,
+} ia_stencil_face;
+
+typedef enum ia_sharing_mode : i8 {
+    ia_sharing_mode_exclusive = 0,
+    ia_sharing_mode_concurrent,
+} ia_sharing_mode;
+
+typedef enum ia_filter_mode : i8 {
+    ia_filter_mode_nearest = 0,
+    ia_filter_mode_linear,
+} ia_filter_mode;
 
 typedef enum ia_result {
     ia_result_success = 0,
