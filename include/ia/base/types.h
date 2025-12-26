@@ -490,7 +490,7 @@ typedef enum ia_write_op : i8 {
     ia_write_op_store = 0,
     ia_write_op_dont_care,
     ia_write_op_none,
-} ia_store_op;
+} ia_write_op;
 
 typedef enum ia_stencil_op : i8 {
     ia_stencil_op_keep = 0,

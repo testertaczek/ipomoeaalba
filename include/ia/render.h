@@ -29,27 +29,37 @@ typedef struct { ia_identifier id; } ia_render_bvh;
 typedef struct { ia_identifier id; } ia_shader;
 typedef struct { ia_identifier id; } ia_shader_pipeline;
 typedef struct { ia_identifier id; } ia_swapchain;
-typedef struct { ia_identifier id; } ia_compiled_command_stream;
-typedef struct { ia_identifier id; } ia_timeline_query;
+typedef struct { ia_identifier id; } ia_render_query_pool;
+typedef struct { ia_identifier id; } ia_compiled_commands;
 
-#define IA_RENDER_MAX_COMPUTE_QUEUE_COUNT       (8)
-#define IA_RENDER_MAX_TRANSFER_QUEUE_COUNT      (2)
+#define IA_RENDER_MAX_COMPUTE_QUEUE_COUNT           (8)
+#define IA_RENDER_MAX_TRANSFER_QUEUE_COUNT          (2)
 
-#define IA_RENDER_QUEUE_MAIN_BEGIN_INDEX        (0)
-#define IA_RENDER_QUEUE_COMPUTE_BEGIN_INDEX     (1)
-#define IA_RENDER_QUEUE_TRANSFER_BEGIN_INDEX    (IA_RENDER_QUEUE_COMPUTE_BEGIN_INDEX + IA_RENDER_MAX_COMPUTE_QUEUE_COUNT)
+#define IA_RENDER_QUEUE_MAIN_BEGIN_INDEX            (0)
+#define IA_RENDER_QUEUE_COMPUTE_BEGIN_INDEX         (1)
+#define IA_RENDER_QUEUE_TRANSFER_BEGIN_INDEX        (IA_RENDER_QUEUE_COMPUTE_BEGIN_INDEX + IA_RENDER_MAX_COMPUTE_QUEUE_COUNT)
+#define IA_RENDER_QUEUE_SPARSE_BINDING_BEGIN_INDEX  (IA_RENDER_QUEUE_TRANSFER_BEGIN_INDEX + IA_RENDER_MAX_TRANSFER_QUEUE_COUNT)
+#define IA_RENDER_QUEUE_VIDEO_DECODE_BEGIN_INDEX    (IA_RENDER_QUEUE_SPARSE_BINDING_BEGIN_INDEX + 1)
+#define IA_RENDER_QUEUE_VIDEO_ENCODE_BEGIN_INDEX    (IA_RENDER_QUEUE_SPARSE_BINDING_BEGIN_INDEX + 2)
 
-typedef enum ia_render_queue_type : i8 {
-    ia_render_queue_type_main,
-    ia_render_queue_type_compute,
-    ia_render_queue_type_transfer,
-    ia_render_queue_type_none = -1,
+/** Can be composed into masks for scheduling command buffers. */
+typedef u8 ia_render_queue_mask;
+typedef enum ia_render_queue_type : ia_render_queue_mask {
+    ia_render_queue_type_any = 0,
+    ia_render_queue_type_main = (1u << 0),
+    ia_render_queue_type_compute = (1u << 1),
+    ia_render_queue_type_transfer = (1u << 2),
+    ia_render_queue_type_sparse_binding = (1u << 3),
+    ia_render_queue_type_video_decode = (1u << 4),
+    ia_render_queue_type_video_encode = (1u << 5),
 } ia_render_queue_type;
 
 typedef struct ia_render_queue {
     ia_render_queue_type    type;
     i8                      index;
 } ia_render_queue;
+/* forward declaration */
+struct ia_render_command_stream;
 
 static constexpr ia_render_queue ia_render_queue_main = { ia_render_queue_type_main, IA_RENDER_QUEUE_MAIN_BEGIN_INDEX };
 static constexpr ia_render_queue ia_render_queue_compute_0 = { ia_render_queue_type_compute, IA_RENDER_QUEUE_COMPUTE_BEGIN_INDEX + 0 };
@@ -63,52 +73,10 @@ static constexpr ia_render_queue ia_render_queue_compute_7 = { ia_render_queue_t
 static constexpr ia_render_queue ia_render_queue_transfer_0 = { ia_render_queue_type_transfer, IA_RENDER_QUEUE_TRANSFER_BEGIN_INDEX + 0 };
 static constexpr ia_render_queue ia_render_queue_transfer_1 = { ia_render_queue_type_transfer, IA_RENDER_QUEUE_TRANSFER_BEGIN_INDEX + 1 };
 
-#define IA_RENDER_MAX_COLOR_ATTACHMENTS         (8)
 #define IA_RENDER_MAX_ROOT_CONSTANT_WORD_SIZE   (32u)
 #define IA_RENDER_MAX_ROOT_CONSTANT_BYTE_SIZE   (IA_RENDER_MAX_ROOT_CONSTANT_WORD_SIZE * 4)
 #define IA_RENDER_PIPELINE_LAYOUT_COUNT         (IA_RENDER_MAX_ROOT_CONSTANT_WORD_SIZE + 1)
 #define IA_RENDER_SHADER_UNUSED                 (UINT32_MAX)
-
-typedef ia_bitmask ia_gpu_memory_property; 
-typedef enum ia_gpu_memory_property_bits : ia_gpu_memory_property {
-    ia_gpu_memory_property_none                     = 0,
-    ia_gpu_memory_property_device_local             = (1u << 0), 
-    ia_gpu_memory_property_device_coherent          = (1u << 1), 
-    ia_gpu_memory_property_device_uncached          = (1u << 2), 
-    ia_gpu_memory_property_host_visible             = (1u << 3), 
-    ia_gpu_memory_property_host_coherent            = (1u << 4), 
-    ia_gpu_memory_property_host_cached              = (1u << 5), 
-    ia_gpu_memory_property_lazily_allocated         = (1u << 6), 
-    ia_gpu_memory_property_protected                = (1u << 7), 
-} ia_gpu_memory_property_bits;
-
-typedef ia_flags ia_gpu_memory_flags;
-typedef enum ia_gpu_memory_flag_bits : ia_gpu_memory_flags {
-    ia_gpu_memory_flag_none                         = 0,
-    ia_gpu_memory_flag_dedicated_memory             = (1u << 0),
-    ia_gpu_memory_flag_can_alias                    = (1u << 1),
-    ia_gpu_memory_flag_host_access_sequential_write = (1u << 2),
-    ia_gpu_memory_flag_host_access_random           = (1u << 3),
-    ia_gpu_memory_flag_strategy_min_memory          = (1u << 4),
-    ia_gpu_memory_flag_strategy_min_time            = (1u << 5),
-} ia_gpu_memory_flag_bits;
-
-typedef struct ia_gpu_memory_requirements {
-    u64 size;
-    u64 alignment;
-} ia_gpu_memory_requirements;
-
-typedef struct ia_render_buffer_info {
-    u64                 size;
-    ia_gpu_memory_flags memory_flags;
-    char const         *name;
-} ia_render_buffer_info;
-
-static constexpr ia_render_buffer_info ia_render_buffer_info_init = {
-    .size = 0llu,
-    .memory_flags = ia_gpu_memory_flag_none,
-    .name = nullptr,
-};
 
 /** A list of supported formats of textures, they describe how memory is laid out.
  *  Availability of formats depends on hardware and backend implementations. */
@@ -231,6 +199,61 @@ typedef enum ia_format : i16 {
     /* other */
     ia_format_count,
 } ia_format;
+
+typedef u8 ia_gpu_memory_property; 
+typedef enum ia_gpu_memory_property_bits : ia_gpu_memory_property {
+    ia_gpu_memory_property_none                     = 0,
+    ia_gpu_memory_property_device_local             = (1u << 0), 
+    ia_gpu_memory_property_device_coherent          = (1u << 1), 
+    ia_gpu_memory_property_device_uncached          = (1u << 2), 
+    ia_gpu_memory_property_host_visible             = (1u << 3), 
+    ia_gpu_memory_property_host_coherent            = (1u << 4), 
+    ia_gpu_memory_property_host_cached              = (1u << 5), 
+    ia_gpu_memory_property_lazily_allocated         = (1u << 6), 
+    ia_gpu_memory_property_protected                = (1u << 7), 
+} ia_gpu_memory_property_bits;
+
+typedef u8 ia_gpu_memory_flags;
+typedef enum ia_gpu_memory_flag_bits : ia_gpu_memory_flags {
+    ia_gpu_memory_flag_none                         = 0,
+    ia_gpu_memory_flag_dedicated_memory             = (1u << 0),
+    ia_gpu_memory_flag_can_alias                    = (1u << 1),
+    ia_gpu_memory_flag_host_access_sequential_write = (1u << 2),
+    ia_gpu_memory_flag_host_access_random           = (1u << 3),
+    ia_gpu_memory_flag_strategy_min_memory          = (1u << 4),
+    ia_gpu_memory_flag_strategy_min_time            = (1u << 5),
+} ia_gpu_memory_flag_bits;
+
+typedef struct ia_gpu_memory_requirements {
+    u64 size;
+    u64 alignment;
+} ia_gpu_memory_requirements;
+
+typedef u8 ia_render_buffer_usage;
+typedef enum ia_render_buffer_usage_bits : ia_render_buffer_usage {
+    ia_render_buffer_usage_none = 0,
+    ia_render_buffer_usage_vertex           = (1u << 0),
+    ia_render_buffer_usage_index            = (1u << 1),
+    ia_render_buffer_usage_uniform          = (1u << 2),
+    ia_render_buffer_usage_storage          = (1u << 3),
+    ia_render_buffer_usage_device_address   = (1u << 4),
+    ia_render_buffer_usage_transfer_src     = (1u << 5),
+    ia_render_buffer_usage_transfer_dst     = (1u << 6),
+} ia_render_buffer_usage_bits;
+
+typedef struct ia_render_buffer_info {
+    u64                     size;
+    ia_render_buffer_usage  usage;
+    ia_gpu_memory_flags     memory_flags;
+    char const             *name;
+} ia_render_buffer_info;
+
+static constexpr ia_render_buffer_info ia_render_buffer_info_init = {
+    .size = 0llu,
+    .usage = ia_render_buffer_usage_none,
+    .memory_flags = ia_gpu_memory_flag_none,
+    .name = nullptr,
+};
 
 typedef ia_flags ia_render_texture_flags;
 typedef enum ia_render_texture_flag_bits : ia_render_texture_flags {
@@ -430,10 +453,31 @@ typedef struct ia_shader_binding_table {
 } ia_shader_binding_table;
 
 typedef struct ia_render_bvh_info {
-
+    u32 TODO;
 } ia_render_bvh_info;
 
 /* TODO BVH aabb geometry & instances, swapchain, shaders, pipelines, query pools, synchronization model */
+
+typedef ia_bitmask ia_shader_stage_mask;
+typedef enum ia_shader_stage_bits : ia_shader_stage_mask {
+    ia_shader_stage_none                    = 0u,
+    ia_shader_stage_vertex                  = (1u << 0),
+    ia_shader_stage_hull                    = (1u << 1),
+    ia_shader_stage_domain                  = (1u << 2),
+    ia_shader_stage_mesh                    = (1u << 3),
+    ia_shader_stage_geometry                = (1u << 4),
+    ia_shader_stage_fragment                = (1u << 5),
+    ia_shader_stage_compute                 = (1u << 6),
+    ia_shader_stage_node                    = (1u << 7),
+    ia_shader_stage_amplification           = (1u << 8),
+    ia_shader_stage_raygeneration           = (1u << 9),
+    ia_shader_stage_miss                    = (1u << 10),
+    ia_shader_stage_anyhit                  = (1u << 11),
+    ia_shader_stage_closesthit              = (1u << 12),
+    ia_shader_stage_intersection            = (1u << 13),
+    ia_shader_stage_callable                = (1u << 14),
+    ia_shader_stage_all                     = UINT32_MAX,
+} ia_shader_stage_bits;
 
 typedef enum ia_render_device_type : i32 {
     ia_render_device_type_other = 0,
@@ -704,6 +748,19 @@ IA_WORK_FN_TYPEDEF(ia_render_destroy_context_fn, ia_render_context *context);
 #define IA_RENDER_DESTROY_CONTEXT_FN(X) \
     IA_WORK_FN(_ia_##X##_render_destroy_context, ia_render_context *context)
 
+/** FIXME `out_compiled_commands` is one handle for now... TODO docs */
+typedef ia_result (IA_CALL *ia_render_compile_command_streams_fn)(
+    ia_render_context                      *context,
+    i32                                     command_stream_count,
+    struct ia_render_command_stream const  *command_streams, // [command_stream_count]
+    ia_compiled_commands                   *out_compiled_commands);
+#define IA_RENDER_COMPILE_COMMAND_STREAMS_FN(X) \
+    ia_result IA_CALL _ia_##X##_render_compile_command_streams( \
+        ia_render_context                      *context, \
+        i32                                     command_stream_count, \
+        struct ia_render_command_stream const  *command_streams, \
+        ia_compiled_commands                   *out_compiled_commands)
+
 /** Returns the host address of a mapped buffer handle loaded in a given device mask.
  *  The size of the `out_host_addresses` array must be `popcnt(device_mask)`.
  *  If any device within the device_mask has not this buffer loaded, it's corresponding 
@@ -848,13 +905,12 @@ _IA_RENDER_DESTROY_GPU_RESOURCES_PFN(bvh);
 #define IA_RENDER_DESTROY_SAMPLERS_FN       _IA_RENDER_DESTROY_GPU_RESOURCES_FN(X, sampler);
 #define IA_RENDER_DESTROY_BVHS_FN           _IA_RENDER_DESTROY_GPU_RESOURCES_FN(X, bvh);
 
-/* TODO api */
-
 struct ia_render_interface {
     ia_interface_header                         header;
     ia_render_enumerate_device_capabilities_fn  enumerate_device_capabilities;
     ia_render_create_context_fn                 create_context;
     ia_render_destroy_context_fn                destroy_context;
+    ia_render_compile_command_streams_fn        compile_command_streams;
     ia_render_buffer_host_addresses_fn          buffer_host_addresses;
     ia_render_buffer_device_addresses_fn        buffer_device_addresses;
     ia_render_bvh_device_addresses_fn           bvh_device_addresses;

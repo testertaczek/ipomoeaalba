@@ -20,7 +20,6 @@
  */
 #include <ia/foundation.h>
 #include <ia/render.h>
-#include <ia/render_commands.h>
 
 #ifdef __cplusplus
 extern "C" {
